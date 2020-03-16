@@ -17,6 +17,7 @@ function setup() {
     gallery.addVisual(new PayGapByJob2017());
     gallery.addVisual(new PayGapTimeSeries());
     gallery.addVisual(new ClimateChange());
+    gallery.addVisual(new EnergyProduction());
     gallery.addVisual(new RisingSeaLevel());
 
 }

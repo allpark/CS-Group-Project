@@ -223,6 +223,9 @@ function drawXAxisTickLabel(value, layout, mapFunction, rt) {
    
 }
 
+// --------------------------------------------------------------------
+// Array searching / retrieving functions
+// --------------------------------------------------------------------
 
 function binarySearchMatchApprox(arr, target, l=0, h=arr.length-1) {
     
@@ -257,10 +260,8 @@ function minMax(arr, lo=-1, hi=-1){
     let mi = 0;
     let ma = 0;
     
-    
     let narrowedScope = (lo!=-1 && hi!=-1);
-
-                 
+         
     if (arr.length==1){
         return [arr[0], arr[1]];
     }
@@ -313,6 +314,9 @@ function minMax(arr, lo=-1, hi=-1){
     return [mi, ma]; 
 }
 
+// --------------------------------------------------------------------
+// Other functions
+// --------------------------------------------------------------------
 
 
 function drawLineGraphGrid(graph, layout, mapFunction, mapFunction2, rt) {
@@ -371,6 +375,17 @@ function drawLineGraphGrid(graph, layout, mapFunction, mapFunction2, rt) {
     }
 }
 
+
+
+function drawLineGraphWindow(layout, w, h, rt){
+  
+    rt.fill(255);
+    rt.noStroke();
+    rt.rect(0,0, layout.leftMargin, layout.rightMargin);
+    rt.rect(0,0, width, layout.topMargin);
+    rt.rect(layout.rightMargin,0, w - layout.rightMargin, layout.bottomMargin);
+    rt.rect(0,layout.bottomMargin, w, h - layout.bottomMargin);
+}
 
 function drawLineGraphGridLabels(graph, layout, mapFunction, mapFunction2, rt) {
 
@@ -447,6 +462,13 @@ function drawLineGraphGridLabels(graph, layout, mapFunction, mapFunction2, rt) {
     
 }
 
+
+
+// --------------------------------------------------------------------
+// Date functions
+// --------------------------------------------------------------------
+
+
 var MONTHS = ["January", "February", "March", "April", "May", "June", "July",
               "August", "September","October", "November", "December"];
 
@@ -477,13 +499,284 @@ function fractYearToDateShort(fractYear, monthsAsNum=false){
     return MONTHS[month].slice(0,3) + " " +  floor((days/30.42)+1).toString() + ", " + year.toString();
 }
 
-function drawLineGraphWindow(layout, w, h, rt){
-  
-    rt.fill(255);
-    rt.noStroke();
-    rt.rect(0,0, layout.leftMargin, layout.rightMargin);
-    rt.rect(0,0, width, layout.topMargin);
-    rt.rect(layout.rightMargin,0, w - layout.rightMargin, layout.bottomMargin);
-    rt.rect(0,layout.bottomMargin, w, h - layout.bottomMargin);
+// --------------------------------------------------------------------
+// Hierarchal data processing
+// --------------------------------------------------------------------
+
+function treeMap(){
+    
+    // list of nodes to render
+    this.nodes = [];
+    
+    // total weight of the graph
+    this.totalWeight = 0.0;
+    
+    this.newInternalNode = function(weight, data){
+        
+        let internalNode = function(){
+            this.frame = { x: 0, y: 0, width: 0, height: 0 };
+            this.weight = weight;
+            this.data = data;
+        }
+
+        return new internalNode();
+    }
+    this.weigh = function(node) {
+        
+        // weigh node 
+        
+        let nodeLevel2Nodes = new Array();
+        let nodeList = new Array();
+        
+        node.level = 0;
+        nodeList.push(node);
+        
+        while (nodeList.length > 0) {
+            
+            let searchNode = nodeList.pop();
+            
+            if (!nodeLevel2Nodes[searchNode.level]) {
+                nodeLevel2Nodes[searchNode.level] = new Array();
+            }
+            nodeLevel2Nodes[searchNode.level].push(searchNode);
+            
+            if (searchNode.nodes) {
+                
+                for (let i = 0; i < searchNode.nodes.length; ++i) {
+                    let nextNode = searchNode.nodes[i];
+                    nextNode.level = searchNode.level + 1;
+                    nextNode.parent = searchNode;
+                    nodeList.push(nextNode);
+                }
+                
+            }
+        }
+        for (let i = nodeLevel2Nodes.length - 2; i >= 0; --i) {
+            for (let j = 0; j < nodeLevel2Nodes[i].length; ++j) {
+                
+                let weight = 0;
+                
+                for (let k = 0; k < nodeLevel2Nodes[i][j].nodes.length; ++k) {
+                    weight = weight + nodeLevel2Nodes[i][j].nodes[k].weight;
+                }
+                
+                nodeLevel2Nodes[i][j].weight = weight;
+            }
+        }
+        
+    }
+     
+    this.maxFontSize = function(size){
+        return 0.1 * (size.width + size.height);
+    }
+
+    this.minFontSize = function(){
+        return 10;
+    }
+
+    this.fontSize = function(canvasSize, tileSize){
+        let min = this.minFontSize(canvasSize);
+        let max = this.maxFontSize(canvasSize);
+        return Math.max(min, ((tileSize.width + tileSize.height) / (canvasSize.width + canvasSize.height)) * max);
+    }
+    
+    this.getTotalWeight = function(){
+        return this.totalWeight;
+    }
+
+    this.internalSquarify = function(nodes, width, height, createRect) {
+        
+        
+        // get children of node
+        let children = nodes.slice(0);
+        
+        // scale weights so that their weight correctly adds  up to the area of 
+        // width and height rectangle that encompasses all nodes
+        
+        this.scaleWeights(nodes, width, height);
+        
+        children.sort(function (a, b) { return b.weight - a.weight; });
+        children.push(this.newInternalNode(0, null));
+        
+        // decide whether to split vertically or horizontally
+        // depending on which dimension is the greatest
+        
+        let vertical = height < width;
+        
+        let w = vertical ? height : width;
+        let x = 0, y = 0;
+        let rw = width;
+        let rh = height;
+        let row = [];
+        
+        while (children.length > 0) {
+            
+            let c = children[0];
+            let r = c.weight;
+            let s = this.sum(row);
+            let min = this.min(row);
+            let max = this.max(row);
+            let wit = this.worst(s + r, Math.min(min, r), Math.max(max, r), w);
+            let without = this.worst(s, min, max, w);
+            
+            if (row.length == 0 || wit < without) {
+                row.push(c);
+                children.shift();
+            }
+            
+            else{
+                
+                let rx = x;
+                let ry = y;
+                let z = s / w;
+                let j;
+                
+                for (j = 0; j < row.length; ++j) {
+                    let d = row[j].weight / z;
+                    if (vertical) {
+                        createRect(rx, ry, z, d, row[j]);
+                        ry = ry + d;
+                    }
+                    else {
+                        createRect(rx, ry, d, z, row[j]);
+                        rx = rx + d;
+                    }
+                }
+                
+                if (vertical){
+                    x = x + z;
+                    rw = rw - z;
+                }
+                else{
+                    y = y + z;
+                    rh = rh - z;
+                }
+                vertical = rh < rw;
+                w = vertical ? rh : rw;
+                row = [];
+                
+            }
+        }
+    };
+
+    this.worst = function(s, min, max, w) {
+        // calculate worst ratio that allows us to check if we should
+        // be dividing vertically or horizontally to keep aspect ratio
+        // as constant as possible
+        return Math.max(w * w * max / (s * s), s * s / (w * w * min));
+    };
+    this.scaleWeights = function(weights, width, height) {
+        
+        // scale weights given frame width and height
+        // this is to make the sum of weights equal to 
+        // the total tree area 
+        
+        let scale = width * height / this.sum(weights);
+        for (let i = 0; i < weights.length; i++) {
+            weights[i].weight = scale * weights[i].weight;
+        }
+        
+    };
+    this.max = function(array) {
+        // return maximum weight 
+        return Math.max.apply(Math, this.weights(array));
+    };
+    this.min = function(array) {
+        // return minimum weight 
+        return Math.min.apply(Math, this.weights(array));
+    };
+    this.sum = function(array) {
+        let total = 0;
+        for (let i = 0; i < array.length; ++i) {
+            total = total + array[i].weight;
+        }
+        return total;
+    };
+    this.weights = function(array) {
+        return array.map(function (d) { return d.weight; }, array);
+    };
+    
+    this.squarifyMain = function(rootNode, f) {
+            
+        // initialize total weight of the tree
+        this.totalWeight = rootNode.frame.width * rootNode.frame.height;
+        
+        // weigh root node 
+        this.weigh(rootNode);
+        
+        // create new nodes array
+        let nodes = new Array();
+        
+        // push root node into nodes array
+        nodes.push(rootNode);
+        
+        while (nodes.length > 0) {
+    
+            let node = nodes.shift();
+            
+            if (node.nodes && node.nodes.length > 0) {
+                // squarify every node given frame width / height 
+                this.internalSquarify(node.nodes, node.frame.width, node.frame.height, function(x, y, width, height, n) {
+                    n.frame = {
+                        x: node.frame.x + x,
+                        y: node.frame.y + y,
+                        width: width,
+                        height: height
+                    };
+                });
+                // push child nodes into nodes array 
+                for (let i = 0; i < node.nodes.length; ++i) {
+                    let childNode = node.nodes[i];
+                    if (childNode.nodes && childNode.nodes.length > 0) {
+                        nodes.push(childNode);
+                    }
+                }
+            }
+        }
+        
+        nodes.push(rootNode);
+        
+        // while nodes stack is non-empty, push nodes out
+        while (nodes.length > 0) {
+            
+            let node = nodes.pop();
+            
+            // ignore level 0 nodes
+            if (node.level > 1){
+                this.preRenderer(node);        
+            }
+            
+            if (node.nodes) {
+                for (let i = 0; i < node.nodes.length; ++i) {
+                    nodes.push(node.nodes[i]);
+                }
+            }
+        }
+    }
+    
+    
+    this.preRenderer = function(node){
+        // push current retrieved to node array 
+        this.nodes.push(node);  
+    }
+    
+    this.getCollapsedNodes = function(){
+        return this.nodes;
+    }
+    
+}
+    
+	
+// other functions
+
+function smoothstep(edge0, edge1, x) {
+
+    let xout = constrain((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+	
+    // Evaluate polynomial
+    return xout * xout * (3.0 - 2.0 * xout);
 }
 
+
+  
+  

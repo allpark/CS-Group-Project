@@ -283,9 +283,6 @@ function RisingSeaLevel(){
 
     }
     
-    this.destroy = function(){
-        this.seaLevelSlider.remove(); 
-    }
 
     this.fitImageDimsToScreen = function(img){
 
