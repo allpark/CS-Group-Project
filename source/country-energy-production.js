@@ -10,6 +10,7 @@ function EnergyProduction() {
     
     // holds active displayed country 
     this.activeCountry = null;
+    this.activeCountryDeltaSince = 0;
     
     // has data been loaded?
     this.loaded = false;
@@ -33,6 +34,8 @@ function EnergyProduction() {
     this.deltaColour1 = [255, 255, 255];
     this.deltaColour2 = [8, 126, 139];
 
+    // drop down menu stuff
+    this.select;
 
     // Layout object to store all common plot layout parameters and methods
     var marginSize = 10;
@@ -41,7 +44,7 @@ function EnergyProduction() {
         
         marginSize: marginSize,
         leftMargin: marginSize * 2,
-        rightMargin: width - marginSize * 6,
+        rightMargin: width - marginSize * 2,
         topMargin: marginSize * 10,
         bottomMargin: height - marginSize * 8,
         pad: 5,
@@ -57,10 +60,14 @@ function EnergyProduction() {
 
     };
     
+    this.destroy = function(){
+        this.select.remove();
+    }
+
     this.drawTitle = function(){
         
         let graph = this.frameBuffer0;
-     
+        
         graph.fill(0);
         
         graph.textAlign(CENTER, CENTER);
@@ -68,6 +75,8 @@ function EnergyProduction() {
         graph.textSize(25);
         
         graph.text("Energy Production Percentage By Fuel Type", (this.layout.rightMargin + this.layout.leftMargin) * 0.5, 25)
+        
+        graph.fill(0,0,0, this.getAnimationScale() ** 0.2 * 255);
         graph.text(this.activeCountry, (this.layout.rightMargin + this.layout.leftMargin) * 0.5, 60 );
         
         
@@ -84,7 +93,7 @@ function EnergyProduction() {
         graph.textStyle(BOLD);
         graph.textSize(20);
         
-        graph.text("Percent change since 1990: ", x, y);
+        graph.text("Percent change since " + this.activeCountryDeltaSince + ": ", x, y);
         
         let gradXOffset   = 300;
         let gradYOffset   = -5;
@@ -93,7 +102,10 @@ function EnergyProduction() {
         let gradHeight    = 20;
         let gradDivisions = 20;
         
-        graph.fill(200);
+        let animScale = this.animationCurrentScale;
+        let alpha = smoothstep(0,1, animScale) * 255;
+        
+        graph.fill(200, 200, 200, alpha );
         graph.rect(x + gradXOffset - 1, y + gradYOffset - 1, gradWidth + 2, gradHeight + 2 );
         
         graph.textAlign(CENTER, CENTER);
@@ -116,14 +128,14 @@ function EnergyProduction() {
                 (i/gradDivisions)
             );
             
-            graph.fill(col[0], col[1], col[2]); 
+            graph.fill(col[0], col[1], col[2], alpha); 
             graph.rect(x + x0 + gradXOffset, y0 + gradYOffset, w, gradHeight);
             
             // draw text showing which square represents what percentage
             
             if (i!=0){
                 let p = floor(map(i, 0, gradDivisions, -100, 100));
-                graph.fill(0);
+                graph.fill(0,0,0, alpha);
                 graph.text(p, x + x0 + gradXOffset, y0 + gradYOffset - 10);
             
             }
@@ -146,9 +158,7 @@ function EnergyProduction() {
         };
         
         
-        // update active country name
-        this.activeCountry = country;
-        
+
         // search for country's ID within the data column array 
         // and return  a reference to this row 
         
@@ -165,12 +175,12 @@ function EnergyProduction() {
               ]         
             }
         ]
+   
+         // update internal active country name
+        this.activeCountry           = country;
+        this.activeCountryDeltaSince = row.getNum("delta_since");
         
-        
-    
         return dataAsTree;
-        
-        
     }
 
     this.preload = function() {
@@ -241,10 +251,51 @@ function EnergyProduction() {
             h: newH
         }
     }
+    
+
+    this.setupInputs = function(){
+        
+        let self    = this;
+        
+        this.select = createSelect();
+        this.select.changed( function(){self.onCountryChange()});
+        this.select.position(1100, this.layout.bottomMargin + 40);
+        let countries = this.data.getColumn(0);
+        
+        for (let i = 0; i < countries.length; i++) {
+            this.select.option(countries[i]);
+        }
+        
+        
+    }
+    this.onCountryChange = function(){
+        
+        let newCountry = this.select.value();
+        this.setCountry(newCountry);
+        
+    }
+    this.setCountry = function(country){
+        
+        // clear active nodes
+        this.tree.clearCollapsedNodes();
+        
+        // squarify the hierarchal data 
+        this.tree.squarifyMain(this.getCountryAsTree(country));
+        
+        // save nodes to this.nodes
+        this.nodes = this.tree.getCollapsedNodes();
+        
+        // start animating 
+        this.startAnimation();
+    
+    }
     this.setup = function() {
         
         this.frameBuffer0 =  createGraphics(width, height);
-
+        
+        // inputs
+        this.setupInputs();
+        
         // Font defaults.
         this.frameBuffer0.textFont(this.font);
         this.frameBuffer0.textAlign('center', 'center');
@@ -253,15 +304,8 @@ function EnergyProduction() {
         // create new tree for displaying hierarchal data 
         this.tree = new treeMap();
         
-        // squarify the hierarchal data 
-        this.tree.squarifyMain(this.getCountryAsTree("United Kingdom"));
-        
-        // save nodes to this.nodes
-        this.nodes = this.tree.getCollapsedNodes();
-        
-        // start animating 
-        this.startAnimation();
-    
+        this.setCountry("United Kingdom");
+      
         
     };
     
@@ -381,7 +425,8 @@ function EnergyProduction() {
         
         let graph = this.frameBuffer0;
         
-        graph.fill(55,55,55,255 * this.animationCurrentScale);
+        graph.noStroke();
+        graph.fill(55,55,55,255 * this.animationCurrentScale ** 20);
         graph.rect(this.layout.leftMargin - this.layout.strokeWeight, 
              this.layout.topMargin - this.layout.strokeWeight ,
              this.layout.rightMargin - this.layout.leftMargin + this.layout.strokeWeight * 2.0, 
@@ -407,7 +452,7 @@ function EnergyProduction() {
         this.drawTitle();
         this.drawBottomFooter(this.layout.leftMargin, this.layout.bottomMargin + 40);
         
-        
+
         image(this.frameBuffer0, 0.0, 0.0, width, height);
         
     };

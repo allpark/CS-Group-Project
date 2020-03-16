@@ -1238,17 +1238,30 @@ function RisingSeaLevel(){
         
         if (mouseWithinZoomOut && this.graph.zoomOutEnable){
             
-            this.setupGraph();
-            this.graphSetNiceYAxisScale();
-            this.graphZoomToolEnable(false);
-
-            this.graphZoomOutFuture();
+          
             
-            if (this.graph.zoomOutPredChanged){
+            // zoom out to normal level
+            if (this.graph.domainX[1] < this.graph.orgDomainX[1]){
+                this.graphZoomToolOnClick();
                 this.graph.zoomOutEnable = true;
-            }     
+            
+            }
+            else{
 
-            this.graph.zoomOutEnable = false;
+                this.setupGraph();
+
+                this.graphSetNiceYAxisScale();
+                this.graphZoomToolEnable(false);
+                this.graphZoomOutFuture();
+
+                if (this.graph.zoomOutPredChanged){
+                    this.graph.zoomOutEnable = true;
+                }     
+
+                this.graph.zoomOutEnable = false;
+
+
+            }
         
         }
         if (mouseWithinSnap){
