@@ -571,7 +571,7 @@ function treeMap(){
     }
 
     this.minFontSize = function(){
-        return 10;
+        return 25;
     }
 
     this.fontSize = function(canvasSize, tileSize){
@@ -759,7 +759,9 @@ function treeMap(){
         // push current retrieved to node array 
         this.nodes.push(node);  
     }
-    
+    this.clearCollapsedNodes = function(){
+        this.nodes = [];
+    }
     this.getCollapsedNodes = function(){
         return this.nodes;
     }
