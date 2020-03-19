@@ -19,6 +19,10 @@ function setup() {
     gallery.addVisual(new ClimateChange());
     gallery.addVisual(new EnergyProduction());
     gallery.addVisual(new RisingSeaLevel());
+    gallery.addVisual(new NutrientsTimeSeries());
+    gallery.addVisual(new UKFoodAttitudes());
+
+    
 
 }
 

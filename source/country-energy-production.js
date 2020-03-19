@@ -260,7 +260,10 @@ function EnergyProduction() {
         this.select = createSelect();
         this.select.changed( function(){self.onCountryChange()});
         this.select.position(1100, this.layout.bottomMargin + 40);
-        let countries = this.data.getColumn(0);
+        
+        let countries = sort(this.data.getColumn(0));
+    
+        // apparently we can't convert a column to an array
         
         for (let i = 0; i < countries.length; i++) {
             this.select.option(countries[i]);
@@ -304,7 +307,7 @@ function EnergyProduction() {
         // create new tree for displaying hierarchal data 
         this.tree = new treeMap();
         
-        this.setCountry("United Kingdom");
+        this.setCountry("Argentina");
       
         
     };
