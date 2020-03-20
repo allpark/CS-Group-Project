@@ -339,7 +339,6 @@ function RisingSeaLevel(){
         if (this.delayedUpdatePosCurTime != -1){
             if ((millis() * 0.001 - this.delayedUpdatePosCurTime) >= this.delayedUpdatePosDuration){
                 
-                        
                 let p  = this.mapSpaceToViewPort(this.delayedUpdatePosCoord[0], this.delayedUpdatePosCoord[1]);
                 let p2  = this.viewPortToMapSpace(width/2, height/2);
                 let p22 = this.mapSpaceToViewPort(p2[0], p2[1]);
@@ -412,7 +411,6 @@ function RisingSeaLevel(){
 
   
     this.ZoomIntoMapCoordinates = function(x,y){    
-        
         this.mapZoomSet(15, width/2, height/2);
         this.updateMapPosition(x, y, 1);   
     }
@@ -457,13 +455,11 @@ function RisingSeaLevel(){
     }
     
     this.mapZoomSet = function(n, x, y) {
-        
         this.mapZoom(-this.currentZoom, width/2, height/2);
         this.mapZoom(n, x, y);
         this.currentZoom = n;
     }
     
- 
  
     
     this.updateInternals = function(){
@@ -534,11 +530,6 @@ function RisingSeaLevel(){
         noStroke();
         textSize(12);
         fill(255);
-    
-        //    text("Time Slider from " + fractYearToDateShort(this.graph.orgDomainX[0]) + 
-            // " to " + fractYearToDateShort(this.futureYearMax) + " Selected Date " +  fractYearToDateShort(this.currentYearSelected),
-           // width / 2, 15);
-        
     
         textStyle(BOLDITALIC);
         fill(255, 200, 50);

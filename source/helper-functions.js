@@ -511,22 +511,22 @@ function treeMap(){
     // total weight of the graph
     this.totalWeight = 0.0;
     
-    this.newInternalNode = function(weight, data){
+    this.createNewInternalNode = function(weight, data){
         
-        let internalNode = function(){
-            this.frame = { x: 0, y: 0, width: 0, height: 0 };
-            this.weight = weight;
-            this.data = data;
+        let newInternalNode = {
+                frame  : { x: 0, y: 0, width: 0, height: 0 },
+                weight : weight,
+                data   : data
         }
-
-        return new internalNode();
+        return newInternalNode;
     }
+    
     this.weigh = function(node) {
         
         // weigh node 
         
-        let nodeLevel2Nodes = new Array();
-        let nodeList = new Array();
+        let nodeLevel2Nodes = [];
+        let nodeList = [];
         
         node.level = 0;
         nodeList.push(node);
@@ -536,7 +536,7 @@ function treeMap(){
             let searchNode = nodeList.pop();
             
             if (!nodeLevel2Nodes[searchNode.level]) {
-                nodeLevel2Nodes[searchNode.level] = new Array();
+                nodeLevel2Nodes[searchNode.level] = [];
             }
             nodeLevel2Nodes[searchNode.level].push(searchNode);
             
@@ -565,24 +565,27 @@ function treeMap(){
         }
         
     }
-     
-    this.maxFontSize = function(size){
+    
+    this.getMaxFontSize = function(size){
         return 0.1 * (size.width + size.height);
     }
 
-    this.minFontSize = function(){
+    this.getMinFontSize = function(){
         return 25;
     }
 
-    this.fontSize = function(canvasSize, tileSize){
-        let min = this.minFontSize(canvasSize);
-        let max = this.maxFontSize(canvasSize);
+    this.getFontSize = function(canvasSize, tileSize){
+        
+        let min = this.getMinFontSize(canvasSize);
+        let max = this.getMaxFontSize(canvasSize);
+        // return font size that's small enough to fit into the smallest dimension of tile 
         return Math.max(min, ((tileSize.width + tileSize.height) / (canvasSize.width + canvasSize.height)) * max);
     }
     
     this.getTotalWeight = function(){
         return this.totalWeight;
     }
+
 
     this.internalSquarify = function(nodes, width, height, createRect) {
         
@@ -594,17 +597,18 @@ function treeMap(){
         // width and height rectangle that encompasses all nodes
         
         this.scaleWeights(nodes, width, height);
-        
-        children.sort(function (a, b) { return b.weight - a.weight; });
-        children.push(this.newInternalNode(0, null));
+
+        children.sort(function (n0, n1) {return n1.weight - n0.weight});
+        children.push(this.createNewInternalNode(0, null));
         
         // decide whether to split vertically or horizontally
         // depending on which dimension is the greatest
         
-        let vertical = height < width;
+        let vertical = width > height;
         
         let w = vertical ? height : width;
-        let x = 0, y = 0;
+        let x = 0;
+        let y = 0;
         let rw = width;
         let rh = height;
         let row = [];
@@ -685,7 +689,10 @@ function treeMap(){
         // return minimum weight 
         return Math.min.apply(Math, this.weights(array));
     };
+    
     this.sum = function(array) {
+        // get sum of weights
+        // used to rescale weights 
         let total = 0;
         for (let i = 0; i < array.length; ++i) {
             total = total + array[i].weight;

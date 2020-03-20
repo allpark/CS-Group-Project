@@ -25,6 +25,7 @@ function EnergyProduction() {
     
     this.animationStartTime  = -1;
     this.animationFinishTime = -1;
+    this.animationDuration   = 2;
     this.animationEnabled    = false;
     this.animationCurrentScale = 1.0;
     
@@ -39,6 +40,10 @@ function EnergyProduction() {
 
     // Layout object to store all common plot layout parameters and methods
     var marginSize = 10;
+    
+    // loaded countries list 
+    
+    this.loadedCountries = [];
     
     this.layout = {
         
@@ -199,10 +204,10 @@ function EnergyProduction() {
     };
     
     
-    this.startAnimation = function(){
+    this.startAnimation = function(duration = 2){
     
         this.animationStartTime  = millis() * 0.001;
-        this.animationDuration   = 2;
+        this.animationFinishTime = this.animationStartTime + duration;
         this.animationEnabled    = true;
         this.animationCurrentScale = 0.0;
         
@@ -212,7 +217,7 @@ function EnergyProduction() {
         
         if (this.animationEnabled){
             
-            if (millis() * 0.001 > this.animationStartTime + this.animationDuration){
+            if (millis() * 0.001 > this.animationStartTime + (this.animationFinishTime - this.animationStartTime) ){
                 
                 this.animationEnabled = false;
                 this.animationCurrentScale = 1.0;
@@ -224,7 +229,7 @@ function EnergyProduction() {
                 this.animationCurrentScale = map(
                     millis() * 0.001,
                     this.animationStartTime,
-                    this.animationStartTime + this.animationDuration,
+                    this.animationFinishTime,
                     0.0,
                     1.0
                 )    
@@ -289,7 +294,21 @@ function EnergyProduction() {
         this.nodes = this.tree.getCollapsedNodes();
         
         // start animating 
-        this.startAnimation();
+        
+        // if country was already visited, then set animation scale to 0
+        // else set animation scale to default
+                
+        if (!this.loadedCountries[country]){
+      
+            this.loadedCountries[country] = true;
+            this.startAnimation();
+           
+        }
+        
+        else{
+            this.startAnimation(0);
+
+        }
     
     }
     this.setup = function() {
@@ -360,7 +379,7 @@ function EnergyProduction() {
             height : node.frame.height
         }   
         
-        return tree.fontSize(canvasSize, tileSize);
+        return tree.getFontSize(canvasSize, tileSize);
      
     }
     
@@ -387,7 +406,7 @@ function EnergyProduction() {
             
             let delta = node.delta;
             let label = node.label;
-            let percentage = round((node.weight / tree.getTotalWeight()) * 100.0, 1);
+            let percentage = round( lerp( 0.0, (node.weight / tree.getTotalWeight()) * 100.0, scale), 1);
      
     
             // remap delta to be between 0 and 1 
@@ -396,7 +415,8 @@ function EnergyProduction() {
             let colFinal   = this.threePointGradient(this.deltaColour0, this.deltaColour1, this.deltaColour2, deltaAlpha * scale);
             
             // draw rectangle 
-    
+            graph.stroke(colFinal[0] * 0.9, colFinal[1] * 0.9, colFinal[2] * 0.9, scale * 255);
+
             graph.fill(colFinal[0], colFinal[1], colFinal[2], scale * 255);
             
             let scaledRect = this.scaleRect(x, y, w, h, scale);
