@@ -1,4 +1,4 @@
-# To-dos:
+# final to-dos
 
-1. add play button to incrementally increase years from 1993 to max future date when visualizing sea levels
+1.0 add more comments
 
