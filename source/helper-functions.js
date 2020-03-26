@@ -857,7 +857,7 @@ buttons.thinkButtons = function(vis){
 }
 
 	
-// other functions
+// other less used functions
 
 function smoothstep(edge0, edge1, x) {
 

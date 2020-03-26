@@ -353,7 +353,7 @@ function PopulationDensity() {
 
             // merge cube mesh with cubes mesh 
             cubes.push(
-                this.createCubeOnSphere(pos, [nx,ny,nz], pos2, 1.4, radius, 2 + density / 100)
+                this.createCubeOnSphere(pos, [nx,ny,nz], pos2, 1.4, radius, 2 + density / 25)
             );
             
         }
