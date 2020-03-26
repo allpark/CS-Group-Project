@@ -775,6 +775,87 @@ function treeMap(){
     
 }
     
+// geometry functions
+
+/*
+function loadOBJModelFromString(strings){
+    
+    var model = new p5.default.Geometry();
+
+    parseObj(model, strings);
+
+
+    return model;
+
+}
+*/
+
+
+//======================== button methods ===========================\\ 
+
+var buttons = {};
+
+buttons.addButton = function(x, y, w, h, drawFunc, onClickFunc, vis){
+	
+	let btn = {
+		x : x,
+		y : y,
+		w : w,
+		h : h,
+		hovered : false,
+		draw    : drawFunc, 
+		onClick : onClickFunc,
+        state   : true,
+		parent  : vis
+	}
+	
+	if (vis.buttons==undefined){
+		vis.buttons = [];
+	}
+	vis.buttons.push(btn);
+    
+    return btn;
+}
+
+buttons.drawButtons = function(vis){
+	for (let i=0; i<vis.buttons.length; i++){
+		vis.buttons[i].draw();
+	}  
+}
+
+	
+buttons.buttonsOnMouseClick = function(vis) {
+	for (let i=0; i<vis.buttons.length; i++){
+		
+		let btn = vis.buttons[i];
+		
+		// if mouse clicked is within the button's bounds 
+		if (mouseX >= btn.x && mouseX <= (btn.x + btn.w) && 
+			mouseY >= btn.y && mouseY <= (btn.y + btn.h))
+		{
+			if (btn.onClick != undefined) {btn.onClick()}
+		}
+	}
+	
+}
+
+buttons.thinkButtons = function(vis){
+	for (let i=0; i<vis.buttons.length; i++){
+
+		let btn = vis.buttons[i];
+		
+		// if mouse is within the button's bounds.. set its hover state to true else false
+		if (mouseX >= btn.x && mouseX <= (btn.x + btn.w) && 
+			mouseY >= btn.y && mouseY <= (btn.y + btn.h))
+		{
+			btn.hovered = true;   
+		}
+		else{
+			btn.hovered = false;   
+		}
+	}
+}
+
 	
 // other functions
 

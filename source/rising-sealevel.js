@@ -40,14 +40,12 @@ function RisingSeaLevel(){
     this.gradientInfoTex;
     
     // texture for endangered areas 
-    
     this.warningTexture;
     
     // year cursor image
     this.yearCursorImage;
 
     // flood map mode 
-    
     this.floodMapMode = 0;
     
     // buttons
@@ -499,7 +497,6 @@ function RisingSeaLevel(){
     
     this.yearSliderClickUpdate = function(){
         
-     
         let yearMax      = this.futureYearMax;
         let yearMin      = floor(this.graph.domainX[0]);
 
@@ -518,7 +515,6 @@ function RisingSeaLevel(){
     }
     
     this.renderHeaderYearSlider = function(){
-        
         
         // draw overlay
         fill(0);
@@ -673,7 +669,6 @@ function RisingSeaLevel(){
     this.think = function(){
         this.updateMapPositionThink();
         this.checkMarginInFocus();
-        this.thinkButtons();
     }
     
     this.drawMapOverlays = function(){
@@ -2327,7 +2322,7 @@ function RisingSeaLevel(){
                         rect(x,y,w,h, 4);
                     }
                     else{
-                        if (this.state){
+                        if (!this.state){
                             fill(100,255,100);
                           
                         }
@@ -2339,7 +2334,7 @@ function RisingSeaLevel(){
                         
                     }
                 
-                    if (this.state){
+                    if (!this.state){
                         // draw gradient info 
                         image(this.parent.gradientInfoTex, 50, 400);
                     }
@@ -2355,7 +2350,7 @@ function RisingSeaLevel(){
         
         
         
-        this.addButton(
+        buttons.addButton(
             100,
             70,
             30,
@@ -2370,7 +2365,7 @@ function RisingSeaLevel(){
      
                      
 
-        this.addButton(
+        buttons.addButton(
             135,
             70,
             30,
@@ -2385,7 +2380,7 @@ function RisingSeaLevel(){
      
 
      
-        this.addButton(
+        buttons.addButton(
             170,
             70,
             30,
@@ -2399,7 +2394,7 @@ function RisingSeaLevel(){
         )
         
         
-        this.addButton(
+        buttons.addButton(
             205,
             70,
             30,
@@ -2412,7 +2407,7 @@ function RisingSeaLevel(){
         )
         
              
-        this.addButton(
+        buttons.addButton(
             240,
             70,
             30,
@@ -2424,7 +2419,7 @@ function RisingSeaLevel(){
             this
         )
         
-        this.addButton(
+        buttons.addButton(
             275,
             70,
             30,
@@ -2436,7 +2431,7 @@ function RisingSeaLevel(){
             this
         )
             
-        this.addButton(
+        buttons.addButton(
             315,
             70,
             50,
@@ -2448,31 +2443,23 @@ function RisingSeaLevel(){
             this
         )
         
-        this.addButton(
+        buttons.addButton(
             375,
             70,
             50,
             22,
             floodMapModeButton,
             function() {
-                if (this.state==undefined){ 
-                    this.state = true;
-                    this.parent.floodMapMode = 1;
-                }
-                else{
-                    this.state = !this.state;
-                    this.parent.floodMapMode = this.state ? 1 : 0
-                }
+                print(this.state)
+                this.state = !this.state;
+                this.parent.floodMapMode = this.state ? 0 : 1;
+
             },
             this
         )
         
         
-        
-        
-        
-  
-        this.addButton(
+        buttons.addButton(
             width - 30,
             10,
             20,
@@ -2483,7 +2470,7 @@ function RisingSeaLevel(){
         )
 
         
-        this.addButton(
+        buttons.addButton(
             50,
             70,
             30,
@@ -2495,7 +2482,7 @@ function RisingSeaLevel(){
             this
         )
         
-      this.addButton(
+      buttons.addButton(
             50,
             110,
             30,
@@ -2511,42 +2498,10 @@ function RisingSeaLevel(){
         
     }
     this.drawButtons = function(){
-        for (let i=0; i<this.buttons.length; i++){
-            this.buttons[i].draw();
-        }        
+        buttons.thinkButtons(this);
+        buttons.drawButtons(this);    
     }
         
-    this.buttonsOnMouseClick = function() {
-        for (let i=0; i<this.buttons.length; i++){
-            
-            let btn = this.buttons[i];
-            
-            // if mouse clicked is within the button's bounds 
-            if (mouseX >= btn.x && mouseX <= (btn.x + btn.w) && 
-                mouseY >= btn.y && mouseY <= (btn.y + btn.h))
-            {
-                if (btn.onClick != undefined) {btn.onClick()}
-            }
-        }
-        
-    }
-    
-    this.thinkButtons = function(){
-        for (let i=0; i<this.buttons.length; i++){
-
-            let btn = this.buttons[i];
-            
-            // if mouse is within the button's bounds.. set its hover state to true else false
-            if (mouseX >= btn.x && mouseX <= (btn.x + btn.w) && 
-                mouseY >= btn.y && mouseY <= (btn.y + btn.h))
-            {
-                btn.hovered = true;   
-            }
-            else{
-                btn.hovered = false;   
-            }
-        }
-    }
     
         
     //===================== event methods ======================\    
@@ -2628,9 +2583,12 @@ function RisingSeaLevel(){
 
         return [xToView, yToView];
         
-    } 
+    }
+    
+
+    
     this.mouseClicked = function(){
-        this.buttonsOnMouseClick();
+        buttons.buttonsOnMouseClick(this);
         if (this.isGraphActive()){
             
             // click on graph to highlight it 
