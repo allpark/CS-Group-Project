@@ -708,10 +708,96 @@ function PopulationDensity() {
 
         }
         
-          
+         
+        let toggleAlpha = function() { 
+             
+            let x           = this.x ;
+            let y           = this.y;
+            let w           = this.w;
+            let h           = this.h;
+
+            // draw border rectangle of the symbol
+            push()
+                // draw it differently depending if mouse is hovered on it 
+                textAlign('center', 'center');
+
+                strokeWeight(1);
+                stroke(155, 155, 155, 50);
+                textSize(25);
+                
+                if (this.hovered){
+                    
+                    
+                    if (this.state){
+                        fill(255,255,255, 255);
+                    }
+                    else{
+                        fill(255,255,255, 200);
+                    }
+                    
+                    ellipse(x + w * 0.5, y + h * 0.5, w * 0.5);
+
+                    noStroke();
+                    fill(0);
+                    text("A", x + w * 0.5, y + h * 0.50);
+
+                    
+                }
+                else{
+           
+                    if (!this.state){
+                        
+                        fill(55,55,55, 200);
+                        ellipse(x + w * 0.5, y + h * 0.5, w * 0.5);
+
+                        noStroke();
+                        fill(255);
+                        text("A", x + w * 0.5, y + h * 0.50);
+
+                    }
+
+
+                    else{
+                        
+                        fill(255,255,255, 200);
+                        ellipse(x + w * 0.5, y + h * 0.5, w * 0.5);
+
+                        noStroke();
+                        fill(0);
+                        text("A", x + w * 0.5, y + h * 0.50);
+
+                    }
+                    
+
+                }
+
+            pop();
+
+        }
+           
+           
+             
         buttons.addButton(
             940,
             height * 0.45,
+            80,
+            80,
+            toggleAlpha,
+            
+            function() {
+                this.state = !this.state;
+                this.parent.densityFieldColor[3] = (this.parent.densityFieldColor[3] + 25) % 255; 
+            },
+            
+            this
+            
+        )
+        
+        
+          
+        buttons.addButton(
+            940,
+            height * 0.35,
             80,
             80,
             toggleInfo,
@@ -719,7 +805,6 @@ function PopulationDensity() {
             function() {
                 this.state = !this.state;
                 this.parent.displayInfo = this.state;
-
             },
             
             this
