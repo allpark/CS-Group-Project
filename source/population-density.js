@@ -54,6 +54,7 @@ function PopulationDensity() {
         this.cloudsTexture = loadImage("imgmisc/clouds.png");
         this.moonTexture   = loadImage("imgmisc/moon.jpg");
         this.sunTexture    = loadImage("imgmisc/sun.jpg");
+        this.starsTexture  = loadImage("imgmisc/stars.png");
 
         // load shaders
         this.loadShaders();
@@ -77,11 +78,8 @@ function PopulationDensity() {
     
     this.loadShaders = function(){
         
-        // load shaders 
-        let shaderStars = loadShader('resources/shaders/stars.vert', 'resources/shaders/stars.frag');
+        // load shader
         let shaderMerge = loadShader('resources/shaders/merge.vert', 'resources/shaders/merge.frag');
-
-        this.shaderStars = shaderStars;
         this.shaderMerge = shaderMerge;
     
     }
@@ -381,9 +379,7 @@ function PopulationDensity() {
         
         rtScene.fill(255,255,255,0);
         
-        rtScene.shader(shaderStars);
-        shaderStars.setUniform('time', millis() * 0.001);
-        
+        rtScene.texture(this.starsTexture);
         
         let angX = 0;
         let angY = 0;
@@ -399,6 +395,7 @@ function PopulationDensity() {
             rtScene.sphere(2000, 16, 16);    
             
         }
+        rtScene.fill(255,255,255,0);
 
     }
     
