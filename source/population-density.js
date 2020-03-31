@@ -39,11 +39,17 @@ function PopulationDensity() {
     this.currentFOV = 90;
     this.densityFieldColor = [255,255,255, 50];
     
+    
+    // number of points downsample 
+    this.dataDownSample = 2;
+    
     // initialize has setup to false
     // so that certain things don't get 
     // re-created whenever you switch visualizations
     
     this.hasSetup = false;
+    
+    this.setupTimer = 0.0;
     
     this.preload = function() {
         
@@ -111,6 +117,9 @@ function PopulationDensity() {
             
             // set to true so that this block of code doesn't get re-run on next visualization switch
             this.hasSetup = true;
+            
+            // timer for intro animation
+            this.setupTimer = millis() * 0.001;
         
             // pre-draw overlay info
             this.drawInfo();
@@ -130,8 +139,12 @@ function PopulationDensity() {
             
         };
         
-        for (let longitude = 0; longitude < data[0].length - 2; longitude++){
-            for (let latitude = 0; latitude < data.length - 2; latitude++){  
+        let downSampleRate = this.dataDownSample;
+        
+        
+        for (let longitude = 0; longitude < data[0].length - 2; longitude+=downSampleRate){
+            for (let latitude = 0; latitude < data.length - 2; latitude+=downSampleRate){  
+                    
                 
                 let densityAtCoordinate = data[latitude][longitude];
                 
@@ -145,9 +158,13 @@ function PopulationDensity() {
                 if (polarDensityMask){
 
                     if (densityAtCoordinate!=-9999){
+                        
+                        // resample density to lower the amount of data points that are rendered
+                        let resampledDensity = nearestNeighborAverage(data, latitude, longitude, downSampleRate, downSampleRate);
+                        
                         // initialize min max value of the entire dataset of densities
                         if (densityData.header.max == -1){
-                            densityData.header.max = densityAtCoordinate;
+                            densityData.header.max = resampledDensity;
                             densityData.header.min = densityAtCoordinate;
                         }
 
@@ -159,18 +176,21 @@ function PopulationDensity() {
                         density   : parseFloat(densityAtCoordinate),
 
 
-                    });
+                        });
 
                         
                         
-                    densityData.header.max = max(densityData.header.max, densityAtCoordinate);
-                    densityData.header.min = min(densityData.header.min, densityAtCoordinate);     
+                        densityData.header.max = max(densityData.header.max, densityAtCoordinate);
+                        densityData.header.min = min(densityData.header.min, densityAtCoordinate);     
                     
-                }
-     
+                    }
                 }                   
             }
         }
+        
+
+        
+        
         
      
         this.densityField = densityData;
@@ -282,7 +302,6 @@ function PopulationDensity() {
             vert5,vert8,vert7,vert6,
             vert5,vert8,vert7,vert6,
             vert5,vert8,vert7,vert6,
-   
            
             vert1,vert5,vert6,vert2,
             vert1,vert5,vert6,vert2,
@@ -351,7 +370,7 @@ function PopulationDensity() {
 
             // merge cube mesh with cubes mesh 
             cubes.push(
-                this.createCubeOnSphere(pos, [nx,ny,nz], pos2, 1.4, radius, 2 + density / 25)
+                this.createCubeOnSphere(pos, [nx,ny,nz], pos2, 1.4 * this.dataDownSample, radius, 2 + density / 25)
             );
             
         }
@@ -473,6 +492,9 @@ function PopulationDensity() {
         
         if (this.mesh){
             
+            let meshScale = smoothstep(0, 1, (min(millis() * 0.001 - this.setupTimer, 5.0) / 5.0));
+            
+            
             // draw sphere mark for mesh
             // without this, cubes will be see-through 
             
@@ -486,7 +508,13 @@ function PopulationDensity() {
                 this.densityFieldColor[2],
                 this.densityFieldColor[3]
             )
+            
+            rtScene2.scale(meshScale);
+            
             rtScene2.model(this.mesh);
+            
+        
+            
         }
     
         rtScene.fill(255, 255, 255, 255);

@@ -775,21 +775,6 @@ function treeMap(){
     
 }
     
-// geometry functions
-
-/*
-function loadOBJModelFromString(strings){
-    
-    var model = new p5.default.Geometry();
-
-    parseObj(model, strings);
-
-
-    return model;
-
-}
-*/
-
 
 //======================== button methods ===========================\\ 
 
@@ -858,7 +843,6 @@ buttons.thinkButtons = function(vis){
 
 	
 // other less used functions
-
 function smoothstep(edge0, edge1, x) {
 
     let xout = constrain((x - edge0) / (edge1 - edge0), 0.0, 1.0);
@@ -868,5 +852,27 @@ function smoothstep(edge0, edge1, x) {
 }
 
 
+function nearestNeighborAverage(arr, x0, y0, w, h, ignoreval=-9999){
+
+    let sum = 0;
+    let n   = 0;
+    
+    for (let x = x0; x < x0 + w; x++){
+        for (let y = y0; y < y0 + h; y++){
+            if (arr[x][y] != ignoreval){
+                sum += arr[x][y];
+                n++;
+            }
+        } 
+    }
+    return sum / n;
+}
   
-  
+
+
+
+
+
+
+
+
