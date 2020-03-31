@@ -350,7 +350,7 @@ function PopulationDensity() {
 
         let cubes = [];
 
-        for (let i=0; i<this.densityField.data.length; i+=1){
+        for (let i=0; i<this.densityField.data.length; i++){
             
             let data = this.densityField.data[i];
             
