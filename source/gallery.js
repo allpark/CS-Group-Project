@@ -6,7 +6,7 @@ function Gallery() {
 
 
   // Add a new visualisation to the navigation bar.
-  this.addVisual = function(vis) {
+  this.addVisual = function(vis, important=false) {
 
     // Check that the vis object has an id and name.
     if (!vis.hasOwnProperty('id')

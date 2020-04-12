@@ -161,7 +161,7 @@ function PopulationDensity() {
                 
                 if (polarDensityMask){
 
-                    if (densityAtCoordinate!=-9999){
+                    if (densityAtCoordinate != -9999){
                         
                         // resample density to lower the amount of data points that are rendered
                         let resampledDensity = nearestNeighborAverage(data, latitude, longitude, downSampleRate, downSampleRate);
@@ -592,6 +592,12 @@ function PopulationDensity() {
         this.angularVel[0] *= 0.9;
         this.angularVel[1] *= 0.9;
         this.angularVel[2] *= 0.9;
+        
+        // limit the minimum most angular vel
+        this.angularVel[0] = abs(this.angularVel[0]) < 0.001 ? 0 : this.angularVel[0];
+        this.angularVel[1] = abs(this.angularVel[1]) < 0.001 ? 0 : this.angularVel[1];
+        this.angularVel[2] = abs(this.angularVel[2]) < 0.001 ? 0 : this.angularVel[2];
+
         
         
     }
