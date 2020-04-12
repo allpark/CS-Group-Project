@@ -4,10 +4,31 @@ body{
 
 .menu-item {
     width: 250px;
-    height: 50px;
+    height: 20px;
     border: 1px solid gray;
     list-style-type: none;
     padding: 5px;
+    
+    text-align: center;
+    padding-bottom: 0px;
+    padding-top: 0px;
+    
+    border-radius: 10px;
+
+}
+
+.menu-item:nth-child(n+6){
+    background:lightgoldenrodyellow;
+    padding-bottom: 15px;
+    padding-top: 15px;
+
+}
+
+.menu-item:nth-child(n+8){
+    background:lightcoral;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    font-weight: 600;
 }
 
 .container {
@@ -15,11 +36,16 @@ body{
 }
 
 .hover {
-    background: lightgray
+    background: lightgray;
 }
 
+.hover:nth-child(n+6){
+    background: lightblue;
+}
+
+
 .selected{
-    background: gold
+    background: gold;
 }
 ul{
     padding-left: 10px;

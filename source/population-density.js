@@ -133,14 +133,18 @@ function PopulationDensity() {
         
         let data = this.data.getArray();
         
+        // create density data object
         let densityData = {
             header : {min : -1, max : -1},
             data   : [],
             
         };
         
+        // retrieve downsample rate 
         let downSampleRate = this.dataDownSample;
         
+        // collapse density data into a one dimensional array with a header
+        // and content data
         
         for (let longitude = 0; longitude < data[0].length - 2; longitude+=downSampleRate){
             for (let latitude = 0; latitude < data.length - 2; latitude+=downSampleRate){  
@@ -169,17 +173,17 @@ function PopulationDensity() {
                         }
 
 
-                       densityData.data.push({
+                        densityData.data.push({
 
-                        longitude : longitude,
-                        latitude  : latitude,
-                        density   : parseFloat(densityAtCoordinate),
+                            longitude : longitude,
+                            latitude  : latitude,
+                            density   : parseFloat(densityAtCoordinate),
 
 
                         });
 
                         
-                        
+                        // update density data header
                         densityData.header.max = max(densityData.header.max, densityAtCoordinate);
                         densityData.header.min = min(densityData.header.min, densityAtCoordinate);     
                     
@@ -199,6 +203,11 @@ function PopulationDensity() {
     
     this.buildMeshCache = function(mesh){
         
+        
+        // build mesh cache so that 
+        // we can render more polygons at a fraction
+        // of cost of drawing them using the cpu
+        
         let vertices = [];
         let faces    = [];
         
@@ -207,11 +216,12 @@ function PopulationDensity() {
         console.log("building mesh cache")
         
         // build mesh cache
-        // format vertices and faces to .OBJ file format standard
         
+        // format vertices and faces to .OBJ file format standard
         for (let cubeIndex=0; cubeIndex < mesh.length; cubeIndex++){
             
             let nverts = mesh[cubeIndex].length;
+            
             for (let i=0; i<mesh[cubeIndex].length; i++){
                 
                 vertices.push("v " + mesh[cubeIndex][i][0] + " " + mesh[cubeIndex][i][1] + " " + mesh[cubeIndex][i][2])
@@ -248,6 +258,7 @@ function PopulationDensity() {
         // normalize tangent vector
         tangent = [tangent[0] / tangentLength, tangent[1] / tangentLength, tangent[2] / tangentLength];
         
+        // get bitangent given tangent and normal 
         let bitangent = [
             tangent[1] * normal[2] - tangent[2] * normal[1],
             tangent[2] * normal[0] - tangent[0] * normal[2],
@@ -291,14 +302,16 @@ function PopulationDensity() {
                      pos[1] + bitangent[1] * -size + normal[1] * height,
                      pos[2] + bitangent[2] * -size + normal[2] * height ]    
         
-       // oh lord, forgive me for I'm about to sin with the code below 
-       let verts = [
+        // oh lord, forgive me for I'm about to sin with the code below 
+        // this is basically a hack for P5.js as there's a problem
+        // with rendering models that are loaded on spot
+        
+        let verts = [
            
             vert1,vert2,vert3,vert4, 
             vert1,vert2,vert3,vert4, 
             vert1,vert2,vert3,vert4, 
    
-
             vert5,vert8,vert7,vert6,
             vert5,vert8,vert7,vert6,
             vert5,vert8,vert7,vert6,
@@ -440,8 +453,11 @@ function PopulationDensity() {
         
         let rtInfo = this.frameBuffer0;
         
-        rtInfo.fill(255);
         rtInfo.noStroke();
+        rtInfo.fill(0,0,0,80);
+        rtInfo.rect(0,0,width,100);
+        
+        rtInfo.fill(255);
         rtInfo.textAlign('center', 'center');
         rtInfo.textStyle(BOLD);
         rtInfo.textSize(30);
@@ -456,10 +472,6 @@ function PopulationDensity() {
         
         // draw footer 
         rtInfo.text(this.footer, 100, height - 50, width * 0.8);
-
-        // draw overlay
-      
-
     }
     this.drawSun = function(){
 
@@ -477,32 +489,40 @@ function PopulationDensity() {
     
     this.drawEarth = function(x,y,z){
         
+        // get render targets
         let rtScene  = this.frameBuffer1;        
-        
         let rtScene2 = this.frameBuffer2;
+        
+        // this probably doesn't work? 
+        // p5.js isn't really that great of a tool for doing webgl stuff
         rtScene._renderer._applyColorBlend(ADD);
 
         this.sceneRotate(rtScene, x, y, z);
         this.sceneRotate(this.frameBuffer2, x, y, z);
-
+        
         // draw earth 
         rtScene.texture(this.globeTexture);
-        rtScene.sphere(300, 32, 32);
+        rtScene.sphere(300, 32, 16);
+                
+        // draw atmosphere
+        rtScene.texture(this.cloudsTexture);
+        rtScene.sphere(310, 16, 16);
+    
         
         
+        // if mesh created
         if (this.mesh){
             
+            // get mesh scale 
             let meshScale = smoothstep(0, 1, (min(millis() * 0.001 - this.setupTimer, 5.0) / 5.0));
-            
             
             // draw sphere mark for mesh
             // without this, cubes will be see-through 
             
             rtScene2.fill(0,0,0, 255)
-            rtScene2.sphere(300, 32, 32);
+            rtScene2.sphere(300, 16, 16);
             
             rtScene2.fill(
-                
                 this.densityFieldColor[0],
                 this.densityFieldColor[1],
                 this.densityFieldColor[2],
@@ -513,22 +533,11 @@ function PopulationDensity() {
             
             rtScene2.model(this.mesh);
             
-        
-            
+    
         }
     
-        rtScene.fill(255, 255, 255, 255);
-    
-        rtScene.texture(this.globeTexture);
-        rtScene.sphere(300, 32, 32);
         
-        // draw atmosphere
-   
-        rtScene.texture(this.cloudsTexture);
-        rtScene.sphere(305, 32, 32);
-        
-        
-       // draw sun 
+        // draw sun 
         this.drawSun();
         
         // draw moon 
@@ -544,6 +553,7 @@ function PopulationDensity() {
         
         // update last mouse dragged event so that 
         // the scene knows when to begin to auto rotate
+        
         this.lastMouseDraggedEvent = millis() * 0.001;
         
         // update angular velocity on two axis 
@@ -670,8 +680,9 @@ function PopulationDensity() {
     
     this.setupButtons = function(){
         
-         let toggleInfo = function() { 
-             
+        
+        let toggleInfo = function() { 
+
             let x           = this.x ;
             let y           = this.y;
             let w           = this.w;
@@ -685,29 +696,29 @@ function PopulationDensity() {
                 strokeWeight(1);
                 stroke(155, 155, 155, 50);
                 textSize(35);
-                
+
                 if (this.hovered){
-                    
-                    
+
+
                     if (this.state){
                         fill(255,255,255, 255);
                     }
                     else{
                         fill(255,255,255, 200);
                     }
-                    
+
                     ellipse(x + w * 0.5, y + h * 0.5, w * 0.5);
 
                     noStroke();
                     fill(0);
                     text("ⓘ", x + w * 0.5, y + h * 0.50);
 
-                    
+
                 }
                 else{
-           
+
                     if (!this.state){
-                        
+
                         fill(55,55,55, 200);
                         ellipse(x + w * 0.5, y + h * 0.5, w * 0.5);
 
@@ -719,7 +730,7 @@ function PopulationDensity() {
 
 
                     else{
-                        
+
                         fill(255,255,255, 200);
                         ellipse(x + w * 0.5, y + h * 0.5, w * 0.5);
 
@@ -728,7 +739,7 @@ function PopulationDensity() {
                         text("ⓘ", x + w * 0.5, y + h * 0.50);
 
                     }
-                    
+
 
                 }
 
@@ -736,7 +747,7 @@ function PopulationDensity() {
 
         }
         
-         
+        // add button that changes alpha 
         let toggleAlpha = function() { 
              
             let x           = this.x ;
@@ -804,7 +815,7 @@ function PopulationDensity() {
         }
            
            
-             
+        // add button that changes globe's alpha 
         buttons.addButton(
             940,
             height * 0.45,
@@ -822,7 +833,7 @@ function PopulationDensity() {
         )
         
         
-          
+        // add button that toggles info
         buttons.addButton(
             940,
             height * 0.35,

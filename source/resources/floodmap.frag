@@ -68,7 +68,7 @@ vec3 flood(vec3 base, float height, vec2 uv){
 	
 	vec3 endangeredTexMap  = texture2D(warningtex, mod(uv *  5.0, 1.0)).rgb;
 	// calculate final shaded look
-	vec3 shaded = mix(base, finalOverlayColor, elevationDiff <= 0.0 ? seaLevelAlpha * 0.5 : 0.0);
+	vec3 shaded = mix(base, finalOverlayColor, elevationDiff <= 0.0 ? seaLevelAlpha * 0.6 : 0.0);
 	//vec3 shaded = mix(base, endangeredTexMap, endangeredPixels);
 
 	

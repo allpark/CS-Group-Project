@@ -34,8 +34,8 @@ function sliceRowNumbers (row, start=0, end) {
   return rowData;
 }
 
-function stringsToNumbers (array) {
-  return array.map(Number);
+function stringsToNumbers (arr) {
+  return arr.map(Number);
 }
 
 // --------------------------------------------------------------------
@@ -229,7 +229,7 @@ function drawXAxisTickLabel(value, layout, mapFunction, rt) {
 
 function binarySearchMatchApprox(arr, target, l=0, h=arr.length-1) {
     
-    // bound target to the lower and upper limit of the sorted array
+    // bound target to the lower and upper limit of the sorted arr
     if (target < arr[l]){
         return [arr[0]==target,0];
     }
@@ -250,10 +250,34 @@ function binarySearchMatchApprox(arr, target, l=0, h=arr.length-1) {
     ? binarySearchMatchApprox(arr, target, l, mid)
     : target > arr[mid] 
     ? binarySearchMatchApprox(arr, target, mid, h)
-    : [arr[mid]==target, mid]
-
-    
+    : [arr[mid]==target, mid]  
 }
+
+function binarySearchMatchMax(arr, target, l=0, h=arr.length-1){
+    
+    // bound target to the lower and upper limit of the sorted arr
+    if (target < arr[l]){
+        return [arr[0]==target,0];
+    }
+    if (target > arr[h]){
+        return [arr[h]==target,h];
+    }
+    
+    // calculate midpoint of the high and low 
+    let mid = Math.floor((h + l) / 2);
+    
+    // if the difference between high and low is less than two, then we've reached a 
+    // point where there are only two possible elements
+    return (h - l) < 2 
+    // find val that is greater or equal to target
+    ? arr[l] >= target ? [arr[l]==target, l] : [arr[h]==target, h] 
+    : target < arr[mid]
+    ? binarySearchMatchMax(arr, target, l, mid)
+    : target > arr[mid] 
+    ? binarySearchMatchMax(arr, target, mid, h)
+    : [arr[mid]==target, mid]  
+}
+
 
 function minMax(arr, lo=-1, hi=-1){
         
@@ -265,10 +289,11 @@ function minMax(arr, lo=-1, hi=-1){
     if (arr.length==1){
         return [arr[0], arr[1]];
     }
+    
     // handle the case when lo and hi are the same
     if (narrowedScope){
         
-        // clamp lo and hi between 0 and array length just in case 
+        // clamp lo and hi between 0 and arr length just in case 
         
         lo = constrain(lo, 0, arr.length);
         hi = constrain(hi, 0, arr.length);
@@ -511,163 +536,231 @@ function treeMap(){
     // total weight of the graph
     this.totalWeight = 0.0;
     
+    // create new node internal object
     this.createNewInternalNode = function(weight, data){
         
+        // create new internal node object    
         let newInternalNode = {
                 frame  : { x: 0, y: 0, width: 0, height: 0 },
                 weight : weight,
                 data   : data
         }
+        
         return newInternalNode;
     }
-    
-    this.weigh = function(node) {
-        
-        // weigh node 
-        
-        let nodeLevel2Nodes = [];
-        let nodeList = [];
-        
-        node.level = 0;
-        nodeList.push(node);
-        
-        while (nodeList.length > 0) {
-            
-            let searchNode = nodeList.pop();
-            
-            if (!nodeLevel2Nodes[searchNode.level]) {
-                nodeLevel2Nodes[searchNode.level] = [];
-            }
-            nodeLevel2Nodes[searchNode.level].push(searchNode);
-            
-            if (searchNode.nodes) {
-                
-                for (let i = 0; i < searchNode.nodes.length; ++i) {
-                    let nextNode = searchNode.nodes[i];
-                    nextNode.level = searchNode.level + 1;
-                    nextNode.parent = searchNode;
-                    nodeList.push(nextNode);
-                }
-                
-            }
-        }
-        for (let i = nodeLevel2Nodes.length - 2; i >= 0; --i) {
-            for (let j = 0; j < nodeLevel2Nodes[i].length; ++j) {
-                
-                let weight = 0;
-                
-                for (let k = 0; k < nodeLevel2Nodes[i][j].nodes.length; ++k) {
-                    weight = weight + nodeLevel2Nodes[i][j].nodes[k].weight;
-                }
-                
-                nodeLevel2Nodes[i][j].weight = weight;
-            }
-        }
-        
+ 
+   
+    this.getTotalWeight = function(){
+        return this.totalWeight;
     }
-    
     this.getMaxFontSize = function(size){
-        return 0.1 * (size.width + size.height);
+        return 0.1 * (size.height + size.width);
     }
 
     this.getMinFontSize = function(){
         return 25;
     }
-
     this.getFontSize = function(canvasSize, tileSize){
         
-        let min = this.getMinFontSize(canvasSize);
-        let max = this.getMaxFontSize(canvasSize);
+        let mi = this.getMinFontSize(canvasSize);
+        let ma = this.getMaxFontSize(canvasSize);
+        
         // return font size that's small enough to fit into the smallest dimension of tile 
-        return Math.max(min, ((tileSize.width + tileSize.height) / (canvasSize.width + canvasSize.height)) * max);
+        return max(mi, ma * ((tileSize.width + tileSize.height) / (canvasSize.width + canvasSize.height)) );
     }
     
-    this.getTotalWeight = function(){
-        return this.totalWeight;
+    this.createFrame = function(x, y, width, height, n, node){
+
+        n.frame = {
+            x: node.frame.x + x,
+            y: node.frame.y + y,
+            width: width,
+            height: height
+        };
     }
-
-
-    this.internalSquarify = function(nodes, width, height, createRect) {
+    
+   
+    this.weigh = function(node) {
         
+        // weigh current node 
+        let level2Nodes = [];
+        let nodesToWeigh = [];
         
-        // get children of node
-        let children = nodes.slice(0);
+        // set the initial level to 0
+        node.level = 0;
+        
+        // push the current node
+        nodesToWeigh.push(node);
+        
+        // iterate while node list is non empty
+        while (nodesToWeigh.length >= 1) {
+            
+            // pop current node and search it
+            let nodeToSearch = nodesToWeigh.pop();
+            
+            // if level 2 node of search node level doesn't exist,
+            // then create an arr inside of it 
+            
+            if (!level2Nodes[nodeToSearch.level]){
+                level2Nodes[nodeToSearch.level] = [];
+            }
+            
+            // push level 2 node given search node at current search node level 
+            level2Nodes[nodeToSearch.level].push(nodeToSearch);
+            
+            if (nodeToSearch.nodes){
+                for (let i = 0; i < nodeToSearch.nodes.length; ++i) {
+                    let nextNode = nodeToSearch.nodes[i];
+                    nextNode.level = nodeToSearch.level + 1;
+                    nextNode.parent = nodeToSearch;
+                    nodesToWeigh.push(nextNode);
+                }
+                
+            }
+        }
+        
+        // weigh every node within level2Nodes arr
+        for (let i = level2Nodes.length - 2; i >= 0; i--) {
+            for (let j = 0; j < level2Nodes[i].length; j++) {
+                
+                let weight = 0;
+        
+                for (let k = 0; k < level2Nodes[i][j].nodes.length; ++k) {
+                    weight = weight + level2Nodes[i][j].nodes[k].weight;
+                }
+                
+                level2Nodes[i][j].weight = weight;
+            }
+        }
+    }
+    
+
+    this.internalPartitionNode = function(node, nodes, width, height) {
+         
+        // get shallow copy of children of nodes
+        let childrenOfNode = nodes.slice(0);
         
         // scale weights so that their weight correctly adds  up to the area of 
         // width and height rectangle that encompasses all nodes
         
         this.scaleWeights(nodes, width, height);
 
-        children.sort(function (n0, n1) {return n1.weight - n0.weight});
-        children.push(this.createNewInternalNode(0, null));
+        childrenOfNode.sort(function (n0, n1) {return n1.weight - n0.weight});
+        childrenOfNode.push(this.createNewInternalNode(0, null));
         
         // decide whether to split vertically or horizontally
         // depending on which dimension is the greatest
         
-        let vertical = width > height;
+        let horizontal = width < height;
         
-        let w = vertical ? height : width;
+        // initialise with to total width or height of the initial node
+        let w = horizontal ? width : height;
+        
+        // set x and y values to 0
         let x = 0;
         let y = 0;
+        
+        // set remaining width and height to the starting values
         let rw = width;
         let rh = height;
+        
+        // create row arr
         let row = [];
         
-        while (children.length > 0) {
+        // while childrenOfNode  is non empty
+        while (childrenOfNode.length >= 1) {
             
-            let c = children[0];
+            // get the first child
+            let c = childrenOfNode[0];
+            
+            // get first child's weight
             let r = c.weight;
-            let s = this.sum(row);
-            let min = this.min(row);
-            let max = this.max(row);
-            let wit = this.worst(s + r, Math.min(min, r), Math.max(max, r), w);
-            let without = this.worst(s, min, max, w);
             
-            if (row.length == 0 || wit < without) {
+            // get min and max values of the row
+            let mi = this.min(row);
+            let ma = this.max(row);
+            
+            // get sum of the current row 
+            let s = this.sum(row);
+            
+            
+            // get two partitions' worst ratio and use it later on to 
+            // decide which one is best to use 
+            let wit = this.worst(r + s, min(r, mi), max(r, ma), w);
+            
+            // get worst ratio
+            let without = this.worst(s, mi, ma, w);
+            
+            if (row.length < 1 || wit < without) {
                 row.push(c);
-                children.shift();
+                childrenOfNode.shift();
             }
             
             else{
                 
+                // initialte remaining x and y to current x and y
                 let rx = x;
                 let ry = y;
-                let z = s / w;
-                let j;
                 
-                for (j = 0; j < row.length; ++j) {
+                let z = s / w;
+                let j = 0;
+                
+                // go through every row nodes
+                for (j = 0; j < row.length; j++) {
+                    
                     let d = row[j].weight / z;
-                    if (vertical) {
-                        createRect(rx, ry, z, d, row[j]);
-                        ry = ry + d;
-                    }
-                    else {
-                        createRect(rx, ry, d, z, row[j]);
+                    
+                    // if we're dividing vertically then create a new node 
+                    // and add row val to the remaining y value 
+                    
+                    if (horizontal) {
+                        this.createFrame(rx, ry, d, z, row[j], node);
                         rx = rx + d;
                     }
+                    // else do the above on the horizontal axis
+                    else {
+                        this.createFrame(rx, ry, z, d, row[j], node);
+                        ry = ry + d;
+                    }
                 }
                 
-                if (vertical){
-                    x = x + z;
-                    rw = rw - z;
-                }
-                else{
+                // if vertical, then squarify along the x axis
+                if (horizontal){             
                     y = y + z;
                     rh = rh - z;
                 }
-                vertical = rh < rw;
-                w = vertical ? rh : rw;
+                // else squarify along the y axis
+                else
+                {
+                    x = x + z;
+                    rw = rw - z;
+                }
+                
+                // check if we should squarify vertically
+                // only if the remaining height is less than
+                // remaining width 
+                horizontal = rw < rh;
+                
+                // set width equal to row height or width depending
+                // on if we're dividing vertically or not
+                w = horizontal ? rw : rh;
+                
                 row = [];
                 
             }
         }
     };
 
-    this.worst = function(s, min, max, w) {
+    this.worst = function(s, mi, ma, w) {
         // calculate worst ratio that allows us to check if we should
         // be dividing vertically or horizontally to keep aspect ratio
         // as constant as possible
-        return Math.max(w * w * max / (s * s), s * s / (w * w * min));
+        
+        let worst0 = (w ** 2 * ma) / s ** 2 
+        let worst1 = s ** 2 / (w ** 2 * mi);
+        
+        // return the maximum of the worst
+        return max(worst0, worst1);
     };
     this.scaleWeights = function(weights, width, height) {
         
@@ -675,97 +768,123 @@ function treeMap(){
         // this is to make the sum of weights equal to 
         // the total tree area 
         
-        let scale = width * height / this.sum(weights);
+        // calculate area and total weights
+        let area         = width * height;
+        let totalWeights = this.sum(weights);
+        
+        // scale weights
         for (let i = 0; i < weights.length; i++) {
-            weights[i].weight = scale * weights[i].weight;
+            weights[i].weight = (area/totalWeights) * weights[i].weight;
         }
         
     };
-    this.max = function(array) {
+    
+    this.max = function(arr) {
         // return maximum weight 
-        return Math.max.apply(Math, this.weights(array));
-    };
-    this.min = function(array) {
-        // return minimum weight 
-        return Math.min.apply(Math, this.weights(array));
+        return Math.max.apply(
+            Math, 
+            arr.map(function (n) { return n.weight;}, arr)
+        );
+        
     };
     
-    this.sum = function(array) {
+    this.min = function(arr) {
+        // return minimum weight 
+        return Math.min.apply(
+            Math, 
+            arr.map(function (n) { return n.weight;}, arr)
+        );
+        
+    };
+    
+    this.sum = function(arr) {
         // get sum of weights
         // used to rescale weights 
         let total = 0;
-        for (let i = 0; i < array.length; ++i) {
-            total = total + array[i].weight;
+        for (let i = 0; i < arr.length; i++) {
+            total = total + arr[i].weight;
         }
         return total;
     };
-    this.weights = function(array) {
-        return array.map(function (d) { return d.weight; }, array);
-    };
     
+
     this.squarifyMain = function(rootNode, f) {
-            
+
+        // create new nodesArray 
+        let nodesArray = new Array();
+
         // initialize total weight of the tree
         this.totalWeight = rootNode.frame.width * rootNode.frame.height;
         
         // weigh root node 
+        // this node will be the one that will get partitioned
         this.weigh(rootNode);
         
-        // create new nodes array
-        let nodes = new Array();
+        // push root node into nodes arr
+        nodesArray.push(rootNode);
         
-        // push root node into nodes array
-        nodes.push(rootNode);
-        
-        while (nodes.length > 0) {
+        while (nodesArray.length >= 1) {
     
-            let node = nodes.shift();
+            let node = nodesArray.shift();
             
-            if (node.nodes && node.nodes.length > 0) {
+            if (node.nodes && node.nodes.length >= 1) {
+                
                 // squarify every node given frame width / height 
-                this.internalSquarify(node.nodes, node.frame.width, node.frame.height, function(x, y, width, height, n) {
-                    n.frame = {
-                        x: node.frame.x + x,
-                        y: node.frame.y + y,
-                        width: width,
-                        height: height
-                    };
-                });
-                // push child nodes into nodes array 
-                for (let i = 0; i < node.nodes.length; ++i) {
+                this.internalPartitionNode(
+                    node,
+                    node.nodes, 
+                    node.frame.width, 
+                    node.frame.height,
+                );
+                
+                // push child nodes into nodes arr 
+                for (let i = 0; i < node.nodes.length; i++) {
                     let childNode = node.nodes[i];
-                    if (childNode.nodes && childNode.nodes.length > 0) {
-                        nodes.push(childNode);
+                    if (childNode.nodes && childNode.nodes.length >= 1) {
+                        nodesArray.push(childNode);
                     }
                 }
             }
         }
         
-        nodes.push(rootNode);
+        // push main root node into nodes arr
+        nodesArray.push(rootNode);
         
         // while nodes stack is non-empty, push nodes out
-        while (nodes.length > 0) {
+        while (nodesArray.length >= 1) {
             
-            let node = nodes.pop();
+            // pop current node
+            let node = nodesArray.pop();
             
-            // ignore level 0 nodes
-            if (node.level > 1){
-                this.preRenderer(node);        
-            }
+            // push current node to tree node arr for later use
+            this.nodes.push(node);
             
+            // if there are nodes within current node, push those nodes into nodes arr
             if (node.nodes) {
-                for (let i = 0; i < node.nodes.length; ++i) {
-                    nodes.push(node.nodes[i]);
+                for (let i = 0; i < node.nodes.length; i++) {
+                    nodesArray.push(node.nodes[i]);
                 }
             }
         }
     }
     
-    
-    this.preRenderer = function(node){
-        // push current retrieved to node array 
-        this.nodes.push(node);  
+    this.getNodesOfLevel = function(level){
+        
+        let filteredNodes = [];
+        
+        for (let i=0; i<this.nodes.length; i++){
+
+            let node = this.nodes[i];
+            if (node.level == level){
+                filteredNodes.push(node);
+            }
+            
+        }
+        
+        // return filtered nodes of specified level / depth
+        return filteredNodes;
     }
+
     this.clearCollapsedNodes = function(){
         this.nodes = [];
     }
@@ -852,8 +971,11 @@ function smoothstep(edge0, edge1, x) {
 }
 
 
-function nearestNeighborAverage(arr, x0, y0, w, h, ignoreval=-9999){
+// convolutional nearest neighbor average function
+// finds the average value in a specified block 2d arr
 
+function nearestNeighborAverage(arr, x0, y0, w, h, ignoreval=-9999){
+    
     let sum = 0;
     let n   = 0;
     
@@ -868,8 +990,50 @@ function nearestNeighborAverage(arr, x0, y0, w, h, ignoreval=-9999){
     return sum / n;
 }
   
+// graphing functions 
+// for calculating good looking domain range 
 
+let graphing = {};
+graphing.getAestheticDivisor = function(range, shouldRound){
+    // get exponent of the given range 
+    let exponent     = floor(Math.log10(range));;
 
+    // calculate fractional part 
+    let fraction     = range / 10 ** exponent;
+
+    // retrieve the correct 1D lookup arr 
+    let mapFrom1DLookUp = shouldRound ? [1, 2, 5, 10] : [1.5, 3, 7, 10];
+
+    // arr that will be used to lookup given the map from lookup arr
+    let mapTo1DLookUp   = [1, 2, 5, 10];
+
+    // get maximum value index by binary searching the lookup arr given fractional part 
+
+    let [numFound, numIndex] = binarySearchMatchMax(mapFrom1DLookUp, fraction);
+
+    // get retrieved divisor 
+    let retrievedNum  = mapTo1DLookUp[numIndex];
+
+    return retrievedNum * Math.pow(10, exponent);
+}
+
+graphing.getAestheticDomainRange = function(minDomain, maxDomain, numTicks, round=false){
+    
+    // initialize out domains
+    let minDomainOut = minDomain;
+    let maxDomainOut = maxDomain;
+    
+    // calculate aesthetic range and tick spacing 
+    let range       = graphing.getAestheticDivisor(maxDomain - minDomain, round);
+    let tickSpacing = graphing.getAestheticDivisor(range / numTicks, true);   
+    
+    // calculate new domain range 
+    minDomainOut     = floor(minDomainOut / tickSpacing) * tickSpacing;
+    maxDomainOut     = ceil(maxDomain / tickSpacing) * tickSpacing;
+
+    return [minDomainOut, maxDomainOut];
+}
+ 
 
 
 

@@ -70,6 +70,8 @@ function RisingSeaLevel(){
     // maximum displayed future year
     this.futureYearMax  = 20000;
     
+    // timer that basically cycles from every year
+    this.floodMapCycleYears = false;
 
 
     //Title to display above the plot.
@@ -485,7 +487,7 @@ function RisingSeaLevel(){
         floodShader.setUniform('ramptex', this.gradientTexture);
         floodShader.setUniform('warningtex', this.warningTexture);
         floodShader.setUniform('ramprange', 100);
-        floodShader.setUniform('capalpha', (this.currentYearSelected / this.futureYearMax));
+        floodShader.setUniform('capalpha', constrain(this.currentYearSelected / this.futureYearMax,0,1));
         floodShader.setUniform('mode', this.floodMapMode);
         floodShader.setUniform('elevationrange', 6400);
         floodShader.setUniform('sealevel', this.getGMSLAtYear(this.currentYearSelected) * 0.001);
@@ -557,7 +559,7 @@ function RisingSeaLevel(){
         rect(sliderEndX, sliderY - 10, 5, 21);
         rect(sliderStartX, sliderY, sliderEndX - sliderStartX, 2);
         
-        for (let i=0; i<=numDivisions; i++){
+        for (let i=0; i <= numDivisions; i++){
             
             let x = map(i/numDivisions, 0, 1, sliderStartX, sliderEndX);
             rect(x, sliderY, 5, 10);
@@ -585,9 +587,12 @@ function RisingSeaLevel(){
         
         // draw current year cursor
         
-        let yearClickedX  = map(this.currentYearSelected,
-                               yearMin, yearMax,
-                               sliderStartX, sliderEndX);
+        let yearClickedX  = constrain(map(this.currentYearSelected,
+                            yearMin, yearMax,
+                            sliderStartX, sliderEndX
+                            ), 
+                            sliderStartX, sliderEndX
+        );
         
         image(this.yearCursorImage, yearClickedX - 7, sliderY - 7);
       
@@ -665,8 +670,24 @@ function RisingSeaLevel(){
     
     
     
-    
+    this.animateAndCycleYears = function(){
+        
+        let shouldCycle = this.floodMapCycleYears;
+        
+        let start = this.graph.orgDomainX[0];
+        let end   = 1200000;
+        
+        if (shouldCycle){
+            if (this.currentYearSelected > end){
+                this.currentYearSelected = start;
+            }
+            this.currentYearSelected *= 1.01;
+        }
+        
+        
+    }
     this.think = function(){
+        this.animateAndCycleYears();
         this.updateMapPositionThink();
         this.checkMarginInFocus();
     }
@@ -762,65 +783,16 @@ function RisingSeaLevel(){
         this.graphZoomToolEnable(true);
         
     }
-    this.graphGetNiceNumber     = function( range, shouldRound){
-        
-        let exponent     = 0.0;
-        let fraction     = 0.0;
-        let niceFraction = 0.0;
-        
-        exponent = floor(Math.log10(range));
-        fraction = range / Math.pow(10, exponent);
-
-        if (shouldRound) {
-            if (fraction < 1.5){
-                niceFraction = 1;
-            }
-            else if (fraction < 3){
-                niceFraction = 2;
-            }
-            else if (fraction < 7){
-                niceFraction = 5;
-            }
-            else{
-                niceFraction = 10;
-            }
-        } 
-        else {
-            if (fraction <= 1){  
-                niceFraction = 1;      
-            }
-        
-            else if (fraction <= 2){
-                niceFraction = 2;
-            }
-            else if (fraction <= 5){
-                niceFraction = 5;
-            }
-            else{
-                niceFraction = 10;
-            }
-            
-        }
-
-        return niceFraction * Math.pow(10, exponent);
-    }
-    
+  
     this.graphSetNiceYAxisScale = function(){
         
         let lowerY    = this.graph.domainY[0];
         let upperY    = this.graph.domainY[1];
+             
+        let newDomain = graphing.getAestheticDomainRange(lowerY, upperY, this.layout.plotYTicksMax, true);
         
-        let niceNum = this.graphGetNiceNumber;
-        
-        
-        let range = niceNum(upperY - lowerY, false);
-
-        let tickSpacing = niceNum(range / (this.layout.plotYTicksMax - 1), true);   
-        let niceMin     = floor(lowerY / tickSpacing) * tickSpacing;
-        let niceMax     = ceil(upperY / tickSpacing) * tickSpacing;
-       
         // update y domain to make it seem nicer to the eye
-        this.graphSetDomainY(niceMin, niceMax);
+        this.graphSetDomainY(newDomain[0], newDomain[1]);
             
     }
     this.graphGetDomainXRange = function(){
@@ -2348,8 +2320,57 @@ function RisingSeaLevel(){
         }
         
         
+        let floodMapPlay = function() { 
+            
+            if (!this.parent.isGraphActive()){
+                    
+                let x           = this.x ;
+                let y           = this.y;
+                let w           = this.w;
+                let h           = this.h;
+                
+                // draw border rectangle of the symbol
+                push()
+                    // draw it differently depending if mouse is hovered on it 
+                    textAlign('center', 'center');
+                
+                    strokeWeight(1);
+                    stroke(50,50,100);
+                    
+                    if (this.hovered){
+                        fill(255,230,180);
+                        rect(x,y,w,h, 4);
+                        
+                        noStroke();
+                        
+                        fill(155,130,80);
+                        triangle(x + w * 0.3, y + h * 0.2, x + w * 0.3, y + h * 0.8, x + w * 0.8, y + h * 0.5);
+
+
+                    }
+                    else{
+                        if (!this.state){
+                            fill(100,255,100);
+                          
+                        }
+                        else{
+                            fill(255,100,100);
+                        }
+                        rect(x,y,w,h,4);
+                        
+                        noStroke();
+                        
+                        fill(255)
+                        triangle(x + w * 0.3, y + h * 0.2, x + w * 0.3, y + h * 0.8, x + w * 0.8, y + h * 0.5);
+                    }
+                  
+                pop();
+            }
+  
+        }
         
         
+        // now register and add buttons
         buttons.addButton(
             100,
             70,
@@ -2358,13 +2379,10 @@ function RisingSeaLevel(){
             zoomToAfrica,
             function() {
                 this.parent.ZoomIntoMapCoordinates(4500,1800);
-
             },
             this
         )
      
-                     
-
         buttons.addButton(
             135,
             70,
@@ -2450,7 +2468,6 @@ function RisingSeaLevel(){
             22,
             floodMapModeButton,
             function() {
-                print(this.state)
                 this.state = !this.state;
                 this.parent.floodMapMode = this.state ? 0 : 1;
 
@@ -2458,6 +2475,20 @@ function RisingSeaLevel(){
             this
         )
         
+         
+        buttons.addButton(
+            435,
+            70,
+            22,
+            22,
+            floodMapPlay,
+            function() {
+                this.state = !this.state;
+                this.parent.floodMapCycleYears = this.state ? 0 : 1;
+
+            },
+            this
+        )
         
         buttons.addButton(
             width - 30,

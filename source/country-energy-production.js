@@ -291,8 +291,12 @@ function EnergyProduction() {
         this.tree.squarifyMain(this.getCountryAsTree(country));
         
         // save nodes to this.nodes
-        this.nodes = this.tree.getCollapsedNodes();
+        // retrieve only level 2 nodes as the loaded data only has 
+        // two hierarchal levels
         
+        this.nodes = this.tree.getNodesOfLevel(2);
+        
+   
         // start animating 
         
         // if country was already visited, then set animation scale to 0
