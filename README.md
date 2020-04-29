@@ -10,7 +10,7 @@ These instructions will get you a copy of this project up and running on your lo
 
 ## Installing
 
-To install, download and extract this this project into an empty folder. In order to run, the project must be hosted on a server or any program that has a 'live preview' mode.
+Download and extract this project into an empty folder. In order to run, the project must be hosted on a server or any program that has a 'live development preview' mode.
 
 There are a couple visualizations will take time to load due to the sheer size of some data being loaded. 
 
