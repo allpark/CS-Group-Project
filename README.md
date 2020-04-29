@@ -19,14 +19,7 @@ There are a couple visualizations will take time to load due to the sheer size o
 1. WEBGL
 2. Google Chrome, Mozilla, Firefox, or Edge. 
 
-
-## Technologies / Libraries used
-
-* Javascript
-* Tensorflow.js
-* P5.js
-* HTML / CSS
-
+## Documentation
 
 ### Main Menu 
 
@@ -104,6 +97,12 @@ Three-dimensional visualization of population density around the world. Peaks re
 ![Image of visualization 10](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_10.jpg)
 
 
+## Technologies / Libraries used
+
+* Javascript
+* Tensorflow.js
+* P5.js
+* HTML / CSS
 
 ## Authors
 
