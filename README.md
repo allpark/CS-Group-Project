@@ -102,8 +102,8 @@ Uses a squarified tree visualization algorithm that allows for displaying of hie
 
 ![Image of visualization 8](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_8.jpg)
 
-File URL
-[country-energy-production.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/country-energy-production.js)
+File URLs
+[country-energy-production.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/country-energy-production.js),
 [helper-functions.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/helper-functions.js)
 
 
@@ -115,8 +115,8 @@ Two different visualizations are nested within one another. The graph can be acc
 
 ![Image of visualization 9](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_9.jpg)
 
-File URL
-[rising-sealevel.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/rising-sealevel.js)
+File URLs
+[rising-sealevel.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/rising-sealevel.js),
 [helper-functions.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/helper-functions.js)
 
 
