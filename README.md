@@ -133,9 +133,9 @@ File URL
 ## Technologies / Libraries used
 
 * Javascript
+* HTML / CSS
 * Tensorflow.js
 * P5.js
-* HTML / CSS
 
 ## Data sources
 
