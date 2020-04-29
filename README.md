@@ -24,6 +24,7 @@ There are a couple visualizations will take time to load due to the sheer size o
 ### Main Menu 
 
 ![Image of Main Menu](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/menu.jpg)
+
 [gallery.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/gallery.js)
 
 ### Visualization 1 
@@ -31,6 +32,7 @@ There are a couple visualizations will take time to load due to the sheer size o
 Visualizes diversity (by race) in the technology sector.
 
 ![Image of visualization 1](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_1.jpg)
+
 [tech-diversity-race.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/tech-diversity-race.js)
 
 ### Visualization 2
@@ -38,6 +40,7 @@ Visualizes diversity (by race) in the technology sector.
 Visualizes diversity (by gender) in the technology sector.
 
 ![Image of visualization 2](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_2.jpg)
+
 [tech-diversity-gender.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/tech-diversity-gender.js)
 
 
@@ -46,6 +49,7 @@ Visualizes diversity (by gender) in the technology sector.
 Visualizes pay gap by job in the technology sector. It's incomplete as it's lacking several labels.
 
 ![Image of visualization 3](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_3.jpg)
+
 [pay-gap-by-job-2017.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/pay-gap-by-job-2017.js)
 
 
@@ -54,6 +58,7 @@ Visualizes pay gap by job in the technology sector. It's incomplete as it's lack
 Visualizes the average difference between male and female pay in the tech sector. 
 
 ![Image of visualization 4](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_4.jpg)
+
 [pay-gap-1997-2017.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/pay-gap-1997-2017.js)
 
 
@@ -62,6 +67,7 @@ Visualizes the average difference between male and female pay in the tech sector
 Visualizes temperature fluctuations through the years, starting from 1880 up to 2010.
 
 ![Image of visualization 5](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_5.jpg)
+
 [climate-change.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/climate-change.js)
 
 ### Visualization 6
@@ -69,6 +75,7 @@ Visualizes temperature fluctuations through the years, starting from 1880 up to 
 Visualizes average intake as a percentage of weighted reference nutrient intake.
 
 ![Image of visualization 6](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_6.jpg)
+
 [nutrients-1974-2018.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/nutrients-1974-2018.js)
 
 
@@ -77,6 +84,7 @@ Visualizes average intake as a percentage of weighted reference nutrient intake.
 Visualizes anonymised attitudes about food using a pie chart.
 
 ![Image of visualization 7](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_7.jpg)
+
 [uk-food-attitudes.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/uk-food-attitudes.js)
 
 ### Visualization 8
@@ -85,6 +93,7 @@ Visualizes different country's energy production by fuel source such as coal, nu
 Uses a squarified tree visualization algorithm that allows for displaying of hiercharcal data.
 
 ![Image of visualization 8](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_8.jpg)
+
 [country-energy-production.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/country-energy-production.js)
 [helper-functions.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/helper-functions.js)
 
@@ -96,6 +105,7 @@ Flood map visualization that uses a shallow neural network to calculate the rate
 Two different visualizations are nested within one another. The graph can be accessed by navigating to the left corner of the first visualization. Both are fully interactive. 
 
 ![Image of visualization 9](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_9.jpg)
+
 [rising-sealevel.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/rising-sealevel.js)
 [helper-functions.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/helper-functions.js)
 
@@ -105,6 +115,7 @@ Two different visualizations are nested within one another. The graph can be acc
 Three-dimensional visualization of population density around the world. Peaks represent areas where there is a high population density.
 
 ![Image of visualization 10](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_10.jpg)
+
 [population-density.js](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/source/population-density.js)
 
 
