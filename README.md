@@ -4,6 +4,30 @@
 
 This project's aim is to further our knowledge in Data Visualization and AI/ML. We've programmed several different *interactable* visualizations of data of different complexities.
 
+## Getting Started
+
+These instructions will get you a copy of this project up and running on your local machine for development and testing purposes. 
+
+## Installing
+
+To install, download and extract this this project into an empty folder. In order to run, the project must be hosted on a server or any program that has a 'live preview' mode.
+
+There are a couple visualizations will take time to load due to the sheer size of some data being loaded. 
+
+## Browser requirements
+
+1. WEBGL
+2. Google Chrome, Mozilla, Firefox, or Edge. 
+
+
+## Technologies / Libraries used
+
+* Javascript
+* Tensorflow.js
+* P5.js
+* HTML / CSS
+
+
 ### Main Menu 
 
 ![Image of Main Menu](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/menu.jpg)
@@ -81,3 +105,7 @@ Three-dimensional visualization of population density around the world. Peaks re
 
 
 
+## Authors
+
+* **Allan Parker** - *Visualizations* - [AllPark](https://github.com/allpark)
+* **Louis Kampman** - *Preliminary work on some visualizations* - [LouVic12](https://github.com/LouVic12)
