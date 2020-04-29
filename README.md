@@ -16,8 +16,8 @@ There are a couple visualizations will take time to load due to the sheer size o
 
 ## Browser requirements
 
-1. WEBGL
-2. Google Chrome, Mozilla, Firefox, or Edge. 
+1. Browser WEB-GL Support
+2. Compatible browsers such as Google Chrome, Firefox, or Microsoft Edge. 
 
 ## Documentation
 
@@ -103,6 +103,11 @@ Three-dimensional visualization of population density around the world. Peaks re
 * Tensorflow.js
 * P5.js
 * HTML / CSS
+
+## Data sources
+
+* EarthData NASA 
+
 
 ## Authors
 
