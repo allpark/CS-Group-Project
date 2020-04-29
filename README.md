@@ -11,13 +11,13 @@ This project's aim is to further our knowledge in Data Visualization and AI/ML. 
 
 ### Visualization 1 
 
-Visualizes diversity (by race) in the technology sector
+Visualizes diversity (by race) in the technology sector.
 
 ![Image of visualization 1](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_1.jpg)
 
 ### Visualization 2
 
-Visualizes diversity (by gender) in the technology sector
+Visualizes diversity (by gender) in the technology sector.
 
 ![Image of visualization 2](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_2.jpg)
 
@@ -44,14 +44,14 @@ Visualizes temperature fluctuations through the years, starting from 1880 up to 
 
 ### Visualization 6
 
-Visualizes average intake as a percentage of weighted reference nutrient intake
+Visualizes average intake as a percentage of weighted reference nutrient intake.
 
 ![Image of visualization 6](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_6.jpg)
 
 
 ### Visualization 7
 
-Visualizes anonymised opinions about food using a pie chart
+Visualizes anonymised opinions about food using a pie chart.
 
 ![Image of visualization 7](https://github.com/allpark/P5JS-DataVis-AI-ML/blob/master/img/vis_7.jpg)
 
